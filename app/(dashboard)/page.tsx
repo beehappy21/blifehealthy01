@@ -1,57 +1,64 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { File, PlusCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ProductsTable } from './products-table';
-import { getProducts } from '@/lib/db';
-
-export const dynamic = 'force-dynamic';
-
-export default async function ProductsPage(
-  props: {
-    searchParams: Promise<{ q: string; offset: string }>;
-  }
-) {
-  const searchParams = await props.searchParams;
-  const search = searchParams.q ?? '';
-  const offset = searchParams.offset ?? 0;
-  const { products, newOffset, totalProducts } = await getProducts(
-    search,
-    Number(offset)
-  );
+export default function DashboardHome() {
+  const products = [
+    { id: "p1", name: "Colla Mineral", price: 69, pv: 69 },
+    { id: "p2", name: "B-Life Healthy", price: 350, pv: 350 },
+    { id: "p3", name: "Starter Pack", price: 999, pv: 999 },
+  ];
 
   return (
-    <Tabs defaultValue="all">
-      <div className="flex items-center">
-        <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="draft">Draft</TabsTrigger>
-          <TabsTrigger value="archived" className="hidden sm:flex">
-            Archived
-          </TabsTrigger>
-        </TabsList>
-        <div className="ml-auto flex items-center gap-2">
-          <Button size="sm" variant="outline" className="h-8 gap-1">
-            <File className="h-3.5 w-3.5" />
-            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-              Export
-            </span>
-          </Button>
-          <Button size="sm" className="h-8 gap-1">
-            <PlusCircle className="h-3.5 w-3.5" />
-            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-              Add Product
-            </span>
-          </Button>
+    <main style={{ fontFamily: "system-ui", padding: 24, maxWidth: 1100, margin: "0 auto" }}>
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <h1 style={{ margin: 0 }}>B-Life Healthy</h1>
+          <p style={{ marginTop: 6, color: "#555" }}>
+            E-Commerce (UI ก่อน) + PV + Wallet (FIRM)
+          </p>
         </div>
-      </div>
-      <TabsContent value="all">
-        <ProductsTable
-          products={products}
-          offset={newOffset ?? 0}
-          totalProducts={totalProducts}
-        />
-      </TabsContent>
-    </Tabs>
+      </header>
+
+      <section style={{ marginTop: 24 }}>
+        <h2>สินค้า</h2>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: 16,
+            marginTop: 16,
+          }}
+        >
+          {products.map((p) => (
+            <div
+              key={p.id}
+              style={{
+                border: "1px solid #eee",
+                borderRadius: 12,
+                padding: 14,
+              }}
+            >
+              <div style={{ height: 140, background: "#f4f4f4", borderRadius: 10 }} />
+              <h3 style={{ margin: "10px 0 4px" }}>{p.name}</h3>
+              <p>ราคา {p.price} บาท</p>
+              <p style={{ color: "#2a7" }}>PV {p.pv}</p>
+              <button
+                style={{
+                  marginTop: 8,
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #ddd",
+                  cursor: "pointer",
+                }}
+              >
+                เพิ่มลงตะกร้า
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer style={{ marginTop: 32, fontSize: 13, color: "#777" }}>
+        © {new Date().getFullYear()} B-Life Healthy
+      </footer>
+    </main>
   );
 }
