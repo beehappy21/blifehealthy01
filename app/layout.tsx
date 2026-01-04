@@ -1,6 +1,6 @@
 import './globals.css';
 
-import { Analytics } from '@vercel/a nalytics/react';
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata = {
   title: 'Next.js App Router + NextAuth + Tailwind CSS',
