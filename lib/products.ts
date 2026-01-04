@@ -72,7 +72,6 @@ function generateVariants(p: Omit<Product, "variants">): Variant[] {
 // Product Example: Colla Mineral (5x5x5)
 // =======================
 const collaMineralBase: Omit<Product, "variants"> = {
- const collaMineralBase: Omit<Product, "variants"> = {
   id: "colla-mineral",
   name: "Colla Mineral",
   basePrice: 69,
@@ -101,7 +100,6 @@ const collaMineralBase: Omit<Product, "variants"> = {
     ],
   },
 };
-
 
 export const products: Product[] = [
   {
