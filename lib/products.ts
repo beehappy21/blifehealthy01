@@ -1,16 +1,18 @@
 export type VariantOption = {
   id: string;
   label: string;
-  priceMul?: number;
-  pvMul?: number;
   priceAdd?: number;
   pvAdd?: number;
-  stockDefault?: number;
+  priceMul?: number;
+  pvMul?: number;
+  stockDefault: number;
 };
 
 export type Variant = {
   key: string;
-  label: string;
+  size?: VariantOption;
+  color?: VariantOption;
+  pack?: VariantOption;
   price: number;
   pv: number;
   stock: number;
@@ -22,45 +24,50 @@ export type Product = {
   basePrice: number;
   basePV: number;
   options: {
-    size: VariantOption[];
-    color: VariantOption[];
-    pack: VariantOption[];
+    size?: VariantOption[];
+    color?: VariantOption[];
+    pack?: VariantOption[];
   };
   variants: Variant[];
 };
 
-function makeKey(sizeId: string, colorId: string, packId: string) {
-  return `size:${sizeId}|color:${colorId}|pack:${packId}`;
+function makeKey(size?: VariantOption, color?: VariantOption, pack?: VariantOption) {
+  const s = size?.id ?? "na";
+  const c = color?.id ?? "na";
+  const p = pack?.id ?? "na";
+  return `s:${s}|c:${c}|p:${p}`;
 }
 
 function generateVariants(p: Omit<Product, "variants">): Variant[] {
+  const sizes = p.options.size?.length ? p.options.size : [undefined];
+  const colors = p.options.color?.length ? p.options.color : [undefined];
+  const packs = p.options.pack?.length ? p.options.pack : [undefined];
+
   const out: Variant[] = [];
 
-  for (const size of p.options.size) {
-    for (const color of p.options.color) {
-      for (const pack of p.options.pack) {
-        const key = makeKey(size.id, color.id, pack.id);
-        const label = `${size.label} / ${color.label} / ${pack.label}`;
+  for (const size of sizes) {
+    for (const color of colors) {
+      for (const pack of packs) {
+        const price =
+          (p.basePrice + (size?.priceAdd ?? 0)) * (pack?.priceMul ?? 1);
+        const pv =
+          (p.basePV + (size?.pvAdd ?? 0)) * (pack?.pvMul ?? 1);
 
-        let price = p.basePrice;
-        let pv = p.basePV;
+        const stock =
+          pack?.stockDefault ??
+          size?.stockDefault ??
+          color?.stockDefault ??
+          50;
 
-        price += size.priceAdd ?? 0;
-        pv += size.pvAdd ?? 0;
-
-        price += color.priceAdd ?? 0;
-        pv += color.pvAdd ?? 0;
-
-        price = Math.round(price * (pack.priceMul ?? 1) + (pack.priceAdd ?? 0));
-        pv = Math.round(pv * (pack.pvMul ?? 1) + (pack.pvAdd ?? 0));
-
-        const stock = Math.min(
-          size.stockDefault ?? 50,
-          color.stockDefault ?? 50,
-          pack.stockDefault ?? 50
-        );
-
-        out.push({ key, label, price, pv, stock });
+        out.push({
+          key: makeKey(size, color, pack),
+          size,
+          color,
+          pack,
+          price,
+          pv,
+          stock,
+        });
       }
     }
   }
@@ -68,9 +75,6 @@ function generateVariants(p: Omit<Product, "variants">): Variant[] {
   return out;
 }
 
-// =======================
-// Product Example: Colla Mineral (5x5x5)
-// =======================
 const collaMineralBase: Omit<Product, "variants"> = {
   id: "colla-mineral",
   name: "Colla Mineral",
